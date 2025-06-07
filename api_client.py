@@ -33,8 +33,8 @@ class XIVPFApiClient:
             raise RuntimeError("Session not initialized. Use async with statement.")
             
         params = {
-            "page": page,
-            "per_page": min(per_page, 100)  # 最大100
+            "page": str(page),
+            "per_page": str(min(per_page, 100))  # 最大100
         }
         
         if filter_condition:

@@ -79,13 +79,14 @@ class Notifier:
                 message = f"第一个招募: {listings[0].name} - {listings[0].duty}"
                 if filter_name:
                     message += f"\n条件: {filter_name}"
-                    
-                notification.notify(
-                    title=title,
-                    message=message,
-                    app_name="XIVPF Monitor",
-                    timeout=10
-                )
+                
+                if hasattr(notification, 'notify') and notification.notify:
+                    notification.notify(
+                        title=title,
+                        message=message,
+                        app_name="XIVPF Monitor",
+                        timeout=10
+                    )
             except Exception as e:
                 logger.error(f"System notification failed: {e}")
         elif not enable_system_notification:
@@ -105,16 +106,16 @@ class Notifier:
             title="过期招募",
             border_style="red"
         ))
-        
         # 系统通知
         if self.enable_system_notification:
             try:
-                notification.notify(
-                    title="招募过期",
-                    message=f"{listing.name} - {listing.duty}\n{reason}",
-                    app_name="XIVPF Monitor",
-                    timeout=10
-                )
+                if hasattr(notification, 'notify') and notification.notify:
+                    notification.notify(
+                        title="招募过期",
+                        message=f"{listing.name} - {listing.duty}\n{reason}",
+                        app_name="XIVPF Monitor",
+                        timeout=10
+                    )
             except Exception as e:
                 logger.error(f"System notification failed: {e}")
                 

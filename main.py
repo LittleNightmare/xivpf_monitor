@@ -342,6 +342,14 @@ class XIVPFMonitorApp:
             
         # 执行搜索
         console.print(f"\n[yellow]使用过滤器 '{filter_name}' 搜索中...[/yellow]")
+        if self.monitor is None:
+            await self.initialize()
+            
+        # Check again to ensure initialization succeeded
+        if self.monitor is None:
+            console.print("[red]无法初始化监视器[/red]")
+            return
+            
         listings = await self.monitor.search_listings(
             condition,
             filter_name,
@@ -467,14 +475,15 @@ class XIVPFMonitorApp:
             """监听用户输入"""
             loop = asyncio.get_event_loop()
             
-            while self.monitor.running:
+            while self.monitor and self.monitor.running:
                 try:
                     # 异步读取用户输入
                     user_input = await loop.run_in_executor(None, input, "")
                     user_input = user_input.strip().lower()
                     
                     if user_input == 'q' or user_input == 'quit':
-                        self.monitor.stop_monitoring()
+                        if self.monitor:
+                            self.monitor.stop_monitoring()
                         break
                     elif user_input == 'status':
                         console.print(f"[blue]状态: 监视运行中，监控目标: {len(self.monitor.monitor_targets)}个[/blue]")
@@ -494,6 +503,13 @@ class XIVPFMonitorApp:
                     logger.debug(f"Input error: {e}")
                     
         try:
+            # 确保监视器已初始化
+            if not self.monitor:
+                await self.initialize()
+                if not self.monitor:
+                    console.print("[red]无法初始化监视器[/red]")
+                    return
+                    
             # 同时运行监视和输入监听
             await asyncio.gather(
                 self.monitor.continuous_search(filter_conditions),
@@ -501,7 +517,8 @@ class XIVPFMonitorApp:
             )
         except KeyboardInterrupt:
             console.print("\n[yellow]收到中断信号，停止监视...[/yellow]")
-            self.monitor.stop_monitoring()
+            if self.monitor:
+                self.monitor.stop_monitoring()
         finally:
             console.print("[green]监视已停止[/green]")
             
