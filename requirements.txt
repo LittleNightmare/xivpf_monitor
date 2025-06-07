@@ -1,0 +1,6 @@
+aiohttp==3.9.5
+pydantic==2.8.2
+pydantic-settings==2.3.0
+rich==13.7.0
+plyer==2.1
+python-dateutil==2.8.2 
