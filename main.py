@@ -412,11 +412,11 @@ class XIVPFMonitorApp:
                 default=self.config.monitor.check_interval
             )
             
-            # 提醒用户关于缓存的影响
-            if new_interval < 90:
-                console.print("[yellow]警告: 检查间隔少于90秒可能无法获取最新数据（由于API缓存机制）[/yellow]")
-                if not Confirm.ask("是否继续？"):
-                    return
+            # # 提醒用户关于缓存的影响
+            # if new_interval < 90:
+            #     console.print("[yellow]警告: 检查间隔少于90秒可能无法获取最新数据（由于API缓存机制）[/yellow]")
+            #     if not Confirm.ask("是否继续？"):
+            #         return
                     
             self.config.monitor.check_interval = new_interval
             self.config.monitor.expire_threshold = IntPrompt.ask(

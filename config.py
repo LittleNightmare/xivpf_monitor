@@ -7,8 +7,8 @@ from models import FilterCondition
 
 class MonitorConfig(BaseModel):
     """监视器配置"""
-    check_interval: int = Field(default=90, description="检查间隔（秒）")  # 考虑到API+CF双重缓存60秒，设置为90秒
-    expire_threshold: int = Field(default=300, description="过期阈值（秒）")
+    check_interval: int = Field(default=16, description="检查间隔（秒）")
+    expire_threshold: int = Field(default=90, description="过期阈值（秒）")
     enable_system_notification: bool = Field(default=True, description="启用系统通知")
     enable_sound_notification: bool = Field(default=True, description="启用声音提醒")
     base_url: str = Field(default="http://xivpf.littlenightmare.top/api", description="API基础URL")
@@ -89,52 +89,37 @@ PRESET_FILTERS = [
         )
     ),
     FilterConfig(
-        name="极神挑战",
-        condition=FilterCondition(
-            search="极",
-            min_slots_available=1
-        )
-    ),
-    FilterConfig(
-        name="零式团队",
-        condition=FilterCondition(
-            search="零式",
-            min_slots_available=2
-        )
-    ),
-    FilterConfig(
-        name="需要坦克的队伍",
+        name="排除已有坦克的队伍",
         condition=FilterCondition(
             min_slots_available=1,
             exclude_jobs=[19, 21, 32, 37]  # 排除已有骑士、战士、暗黑、绝枪的队伍
         )
     ),
     FilterConfig(
-        name="需要治疗的队伍", 
+        name="排除已有治疗的队伍", 
         condition=FilterCondition(
             min_slots_available=1,
             exclude_jobs=[24, 28, 33, 40]  # 排除已有白魔、学者、占星、贤者的队伍
         )
     ),
     FilterConfig(
-        name="速通团队",
-        condition=FilterCondition(
-            content_keywords="速通 速刷 刷子",
-            min_slots_available=1
-        )
-    ),
-    FilterConfig(
-        name="练习向团队",
-        condition=FilterCondition(
-            content_keywords="练习 新手 萌新 学习",
-            min_slots_available=1
-        )
-    ),
-    FilterConfig(
         name="固定队招募",
         condition=FilterCondition(
-            content_keywords="固定 固定队 长期 招固定",
+            content_keywords="固定 固定队 长期 招固定 缺少",
             min_slots_available=1
         )
-    )
+    ),
+    FilterConfig(
+        name="光暗未来绝境战",
+        condition=FilterCondition(
+            duty=[1006]
+        )
+    ),
+    FilterConfig(
+        name="幻巧周常-白虎幻巧战",
+        condition=FilterCondition(
+            content_keywords="+1 +2",
+            duty=[1007]
+        )
+    ),
 ] 
