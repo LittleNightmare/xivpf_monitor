@@ -191,25 +191,28 @@ class XIVPFMonitor:
                 
         # 检查之前的列表中哪些监控目标现在过期了
         if self.last_listings:
-            previous_ids = {l.id for l in self.last_listings[:last_new_index+1]}
-            current_ids = {l.id for l in listings}
-            
             # 找出消失的招募，但只处理监控目标
-            expired_ids = previous_ids - current_ids
-            monitor_target_ids = set(self.monitor_targets.keys())
-            expired_monitor_targets = expired_ids & monitor_target_ids
+            expired_listing_ids = (
+                {l.id for l in self.last_listings} -
+                {l.id for l in listings[:last_new_index+1]}
+            )
+            active_monitor_target_ids = set(self.monitor_targets.keys())
+            expired_monitor_targets = expired_listing_ids & active_monitor_target_ids
             
             for listing in self.last_listings:
+                # Check if the listing ID is among expired monitor targets
+                # Rationale: Listings that are no longer present in the updated list
+                # are considered expired and should be notified and removed from monitoring.
                 if listing.id in expired_monitor_targets:
                     self.notifier.notify_expired(
                         listing,
                         "招募已从列表中消失"
                     )
-                    # 从监控目标中移除
+                    # Remove the expired listing from monitoring targets
                     self.remove_monitor_target(listing.id)
                     
         # 更新上一次的列表
-        self.last_listings = listings.copy()
+        self.last_listings = listings[:last_new_index+1].copy()
         
     async def continuous_search(
         self,
