@@ -10,6 +10,7 @@ class MonitorConfig(BaseModel):
     check_interval: int = Field(default=90, description="检查间隔（秒）")  # 考虑到API+CF双重缓存60秒，设置为90秒
     expire_threshold: int = Field(default=300, description="过期阈值（秒）")
     enable_system_notification: bool = Field(default=True, description="启用系统通知")
+    enable_sound_notification: bool = Field(default=True, description="启用声音提醒")
     base_url: str = Field(default="http://xivpf.littlenightmare.top/api", description="API基础URL")
     
     

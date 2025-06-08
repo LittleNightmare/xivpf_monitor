@@ -33,7 +33,10 @@ class XIVPFMonitorApp:
         self.config = Config.load_from_file()
         self.api_client: Optional[XIVPFApiClient] = None
         self.monitor: Optional[XIVPFMonitor] = None
-        self.notifier = Notifier(self.config.monitor.enable_system_notification)
+        self.notifier = Notifier(
+            self.config.monitor.enable_system_notification,
+            self.config.monitor.enable_sound_notification
+        )
         self.running = False
         
     async def initialize(self):
@@ -385,6 +388,7 @@ class XIVPFMonitorApp:
         console.print(f"- 检查间隔: {self.config.monitor.check_interval} 秒")
         console.print(f"- 过期阈值: {self.config.monitor.expire_threshold} 秒")
         console.print(f"- 系统通知: {'启用' if self.config.monitor.enable_system_notification else '禁用'}")
+        console.print(f"- 声音提醒: {'启用' if self.config.monitor.enable_sound_notification else '禁用'}")
         console.print(f"- API地址: {self.config.monitor.base_url}")
         
         console.print("\n[yellow]API缓存信息:[/yellow]")
@@ -423,6 +427,10 @@ class XIVPFMonitorApp:
                 "启用系统通知？",
                 default=self.config.monitor.enable_system_notification
             )
+            self.config.monitor.enable_sound_notification = Confirm.ask(
+                "启用声音提醒？",
+                default=self.config.monitor.enable_sound_notification
+            )
             
             self.config.save_to_file()
             console.print("[green]设置已保存[/green]")
@@ -432,6 +440,7 @@ class XIVPFMonitorApp:
                 self.monitor.check_interval = self.config.monitor.check_interval
                 self.monitor.expire_threshold = self.config.monitor.expire_threshold
             self.notifier.enable_system_notification = self.config.monitor.enable_system_notification
+            self.notifier.enable_sound_notification = self.config.monitor.enable_sound_notification
         elif choice == "2":
             # 清除通知记录
             if self.monitor:

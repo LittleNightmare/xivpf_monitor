@@ -8,15 +8,42 @@ from rich.panel import Panel
 from models import Listing, NotificationType
 from time_utils import format_local_time, get_time_ago_str, is_recent_update
 import platform
+import winsound
 
 logger = logging.getLogger(__name__)
 console = Console()
 
 
 class Notifier:
-    def __init__(self, enable_system_notification: bool = True):
+    def __init__(self, enable_system_notification: bool = True, enable_sound_notification: bool = True):
         self.enable_system_notification = enable_system_notification
+        self.enable_sound_notification = enable_sound_notification
         self.is_windows = platform.system() == "Windows"
+        
+    def _play_sound(self, sound_type: str = "default"):
+        """播放声音提醒"""
+        if not self.enable_sound_notification:
+            return
+            
+        try:
+            if self.is_windows:
+                # Windows 系统使用 winsound
+                if sound_type == "found":
+                    # 找到匹配招募时播放上升音调
+                    winsound.Beep(800, 300)  # 800Hz, 300ms
+                    winsound.Beep(1000, 200)  # 1000Hz, 200ms
+                elif sound_type == "expired":
+                    # 招募过期时播放下降音调
+                    winsound.Beep(600, 200)  # 600Hz, 200ms
+                    winsound.Beep(400, 300)  # 400Hz, 300ms
+                else:
+                    # 默认单音调
+                    winsound.Beep(750, 200)  # 750Hz, 200ms
+            else:
+                # 非 Windows 系统使用系统铃声（如果可用）
+                print('\a')  # ASCII 铃声字符
+        except Exception as e:
+            logger.debug(f"Sound notification failed: {e}")
         
     def show_listings_table(self, listings: List[Listing], title: str = "招募列表", max_count: int = 10):
         """显示招募列表表格"""
@@ -55,8 +82,7 @@ class Notifier:
                 description,
                 f"{listing.slots_filled}/{listing.slots_available}",
                 f"{time_left_min}分钟",
-                time_display
-            )
+                time_display            )
             
         console.print(table)
         
@@ -80,6 +106,9 @@ class Notifier:
                 if filter_name:
                     message += f"\n条件: {filter_name}"
                 
+                # 声音提醒
+                self._play_sound("found")  
+
                 if hasattr(notification, 'notify') and notification.notify:
                     notification.notify(
                         title=title,
@@ -104,8 +133,11 @@ class Notifier:
             f"[yellow]副本:[/yellow] {listing.duty}\n"
             f"[yellow]原因:[/yellow] {reason or '招募已结束或删除'}",
             title="过期招募",
-            border_style="red"
-        ))
+            border_style="red"        ))
+        
+        # 声音提醒
+        self._play_sound("expired")
+        
         # 系统通知
         if self.enable_system_notification:
             try:
@@ -133,8 +165,10 @@ class Notifier:
             f"[yellow]剩余时间:[/yellow] {int(listing.time_left / 60)}分钟\n"
             f"[yellow]更新内容:[/yellow] {changes or '未知'}",
             title="招募更新",
-            border_style="blue"
-        ))
+            border_style="blue"        ))
+        
+        # # 招募更新播放轻微提示音
+        # self._play_sound("default")
         
         # 招募更新不发送系统通知，只有过期/消失时才发送
         logger.info(f"Listing {listing.id} updated: {changes}")
