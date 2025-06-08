@@ -85,7 +85,7 @@ class Notifier:
                         title=title,
                         message=message,
                         app_name="XIVPF Monitor",
-                        timeout=10
+                        timeout=30
                     )
             except Exception as e:
                 logger.error(f"System notification failed: {e}")
@@ -114,7 +114,7 @@ class Notifier:
                         title="招募过期",
                         message=f"{listing.name} - {listing.duty}\n{reason}",
                         app_name="XIVPF Monitor",
-                        timeout=10
+                        timeout=30
                     )
             except Exception as e:
                 logger.error(f"System notification failed: {e}")
@@ -125,11 +125,13 @@ class Notifier:
         console.print(f"\n[blue]↻ 招募更新[/blue]")
         console.print(Panel(
             f"[yellow]ID:[/yellow] {listing.id}\n"
-            f"[yellow]名称:[/yellow] {listing.name}\n"
+            f"[yellow]玩家名:[/yellow] {listing.name}\n"
             f"[yellow]服务器:[/yellow] {listing.created_world}/{listing.datacenter}\n"
             f"[yellow]副本:[/yellow] {listing.duty}\n"
+            f"[yellow]内容:[/yellow] {listing.description}\n"
             f"[yellow]当前人数:[/yellow] {listing.slots_filled}/{listing.slots_available}\n"
-            f"[yellow]更新内容:[/yellow] {changes or '招募信息已更新'}",
+            f"[yellow]剩余时间:[/yellow] {int(listing.time_left / 60)}分钟\n"
+            f"[yellow]更新内容:[/yellow] {changes or '未知'}",
             title="招募更新",
             border_style="blue"
         ))

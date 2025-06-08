@@ -145,8 +145,8 @@ class XIVPFMonitor:
                 # 检查是否更新
                 if listing.updated_at > target.last_update:
                     # 招募已更新
-                    changes = f"人数变化: {listing.slots_filled}/{listing.slots_available}"
-                    self.notifier.notify_updated(listing, changes)
+                    # changes = f"人数变化: {listing.slots_filled}/{listing.slots_available}"
+                    self.notifier.notify_updated(listing)
                     target.last_update = listing.updated_at
                     target.time_without_update = 0
                 else:
